@@ -229,4 +229,11 @@ code {
         left: 20px;
         right: unset;
     }
+
+    .theme-toggle {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 20px;
+    }
 }

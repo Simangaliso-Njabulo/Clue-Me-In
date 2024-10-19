@@ -1,7 +1,20 @@
-﻿@page "/"
+﻿@page "/" 
 
-<PageTitle>Home</PageTitle>
+@implements IDialogContentComponent
 
-<h1>Hello, world!</h1>
+<FluentDesignTheme @bind-Mode=@Mode
+                   @bind-OfficeColor=@Color
+                   StorageName="theme" />
 
-Welcome to your new Fluent Blazor app.
+<FluentSelect Label="Theme"
+              Items="@(Enum.GetValues<DesignThemeModes>())" 
+              @bind-SelectedOption="@Mode" />
+
+<FluentSelect Label="Color"
+              Items="@(new OfficeColor? [] { OfficeColor.Word, OfficeColor.Excel, OfficeColor. PowerPoint })" 
+              @bind-SelectedOption="@Color" />
+
+@code {
+    private DesignThemeModes Mode = DesignThemeModes.System;
+    private OfficeColor? Color = OfficeColor.Word;
+}
