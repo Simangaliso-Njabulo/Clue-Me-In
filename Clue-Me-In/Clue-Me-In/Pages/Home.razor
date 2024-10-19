@@ -1,5 +1,4 @@
 ﻿@page "/" 
-
 @implements IDialogContentComponent
 
 <FluentDesignTheme @bind-Mode=@Mode
@@ -11,7 +10,7 @@
               @bind-SelectedOption="@Mode" />
 
 <FluentSelect Label="Color"
-              Items="@(new OfficeColor? [] { OfficeColor.Word, OfficeColor.Excel, OfficeColor. PowerPoint })" 
+              Items="@(new OfficeColor? [] { OfficeColor.Word, OfficeColor.Excel, OfficeColor.PowerPoint, OfficeColor.Access, OfficeColor.GroupMe, OfficeColor.Office})"
               @bind-SelectedOption="@Color" />
 
 @code {
