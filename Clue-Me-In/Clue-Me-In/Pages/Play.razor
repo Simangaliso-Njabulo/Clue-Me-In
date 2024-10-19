@@ -1,18 +1,7 @@
 ﻿@page "/play"
 
-<PageTitle>Play</PageTitle>
-
-<h1>Play</h1>
-
-<p role="status">Current count: <FluentBadge Appearance="Appearance.Neutral">@currentCount</FluentBadge></p>
-
-<FluentButton Appearance="Appearance.Accent" @onclick="IncrementCount">Click me</FluentButton>
-
-@code {
-    private int currentCount = 0;
-
-    private void IncrementCount()
-    {
-        currentCount++;
-    }
-}
+<div class="card-container">
+    <FluentCard Height="90%" Width="90%">
+        Play 
+    </FluentCard>
+</div>
