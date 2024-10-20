@@ -2,15 +2,26 @@
 @inject WordsService WordsService
 
 <div class="card-container">
-    <FluentStack HorizontalGap="15" HorizontalAlignment="HorizontalAlignment.Center" class="button-stack">
-        <FluentButton IconEnd="@(new Icons.Regular.Size20.CheckmarkCircle().WithColor(Color.Success))" OnClick="OnCorrect">Correct</FluentButton>
-        <FluentButton IconEnd="@(new Icons.Regular.Size20.DismissCircle().WithColor(Color.Error))" OnClick="OnIncorrect">Incorrect</FluentButton>
-        <FluentButton IconEnd="@(new Icons.Regular.Size20.ArrowCircleRight().WithColor(Color.Info))" OnClick="OnSkip">Skip</FluentButton>
+
+    <FluentStack HorizontalGap="15" HorizontalAlignment="HorizontalAlignment.Center" VerticalAlignment="VerticalAlignment.Bottom" Width="90%" class="button-stack">
+
+        <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Left">
+            <FluentSelect Label="Category"
+                          Items="@(Enum.GetValues<DesignThemeModes>())" />
+        </FluentStack>
+
+        <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right">
+            <FluentButton IconEnd="@(new Icons.Regular.Size20.CheckmarkCircle().WithColor(Color.Success))" OnClick="OnCorrect">Correct</FluentButton>
+            <FluentButton IconEnd="@(new Icons.Regular.Size20.DismissCircle().WithColor(Color.Error))" OnClick="OnIncorrect">Incorrect</FluentButton>
+            <FluentButton IconEnd="@(new Icons.Regular.Size20.ArrowCircleRight().WithColor(Color.Info))" OnClick="OnSkip">Skip</FluentButton>
+        </FluentStack>
+       
     </FluentStack>
 
     <FluentCard class="card">
         <p class="card-text">@currentWord</p>
     </FluentCard>
+
 </div>
 
 @code {
