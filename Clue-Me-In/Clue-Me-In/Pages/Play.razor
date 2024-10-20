@@ -1,7 +1,58 @@
 ﻿@page "/play"
+@inject WordsService WordsService
 
 <div class="card-container">
+    <FluentStack HorizontalGap="15" HorizontalAlignment="HorizontalAlignment.Center" class="button-stack">
+        <FluentButton OnClick="OnCorrect">Correct</FluentButton>
+        <FluentButton OnClick="OnIncorrect">Incorrect</FluentButton>
+        <FluentButton OnClick="OnSkip">Skip</FluentButton>
+    </FluentStack>
+
     <FluentCard class="card">
-        <p class="card-text">Play </p>
+        <p class="card-text">@currentWord</p>
     </FluentCard>
 </div>
+
+@code {
+    private List<string> words;
+    private string currentWord = string.Empty;
+    private int currentWordIndex = 0;
+
+    protected override void OnInitialized()
+    {
+        words = WordsService.GetWords(); // Get the words from the service
+        if (words.Count > 0)
+        {
+            currentWord = words[currentWordIndex]; // Display the first word
+        }
+    }
+
+    // Handle the "Correct" button click
+    private void OnCorrect()
+    {
+        NextWord();
+    }
+
+    // Handle the "Incorrect" button click
+    private void OnIncorrect()
+    {
+        NextWord();
+    }
+
+    // Handle the "Skip" button click
+    private void OnSkip()
+    {
+        NextWord();
+    }
+
+    // Move to the next word
+    private void NextWord()
+    {
+        currentWordIndex++;
+        if (currentWordIndex >= words.Count)
+        {
+            currentWordIndex = 0; // Loop back to the first word if all words are used
+        }
+        currentWord = words[currentWordIndex];
+    }
+}
