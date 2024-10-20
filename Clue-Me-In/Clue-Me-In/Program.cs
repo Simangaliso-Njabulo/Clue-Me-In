@@ -12,7 +12,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddFluentUIComponents();
 
-// Register the WordsService as a singleton
-builder.Services.AddSingleton<WordsService>();
+// Register the WordsService 
+builder.Services.AddScoped<WordsService>();
 
 await builder.Build().RunAsync();

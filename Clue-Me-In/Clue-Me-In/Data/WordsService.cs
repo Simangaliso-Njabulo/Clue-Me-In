@@ -1,31 +1,55 @@
-﻿namespace Data
+﻿using System.Text.Json;
+
+namespace Data
 {
     public class WordsService
     {
-        // Store the words in a list or retrieve from a database, API, etc.
-        private List<string> _words = new List<string>
-        {
-            "Hello World",
-            "Goodbye",
-            "How are you?",
-            "Blazor is amazing",
-            "Fluent UI is sleek",
-            "Design systems rock!"
-        };
+        private readonly HttpClient _httpClient;
+        private Dictionary<string, List<string>> _wordCategories;
 
-        // Method to get all words
-        public List<string> GetWords()
+        public WordsService(HttpClient httpClient)
         {
-            return _words;
+            _httpClient = httpClient;
+            // Initiate async method to load the words from JSON
+            _ = LoadWordsFromJsonAsync();
+            _wordCategories = new Dictionary<string, List<string>>();
         }
 
-        // Method to add a word to the list
-        public void AddWord(string word)
+        private async Task LoadWordsFromJsonAsync()
         {
-            if (!string.IsNullOrEmpty(word) && !_words.Contains(word))
+            try
             {
-                _words.Add(word);
+                // Replace this with the actual path of your JSON file
+                var jsonFilePath = "Words.json";
+
+                var jsonData = await _httpClient.GetStringAsync(jsonFilePath);
+
+                if (!string.IsNullOrWhiteSpace(jsonData))
+                {
+                    _wordCategories = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(jsonData);
+                }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading JSON: {ex.Message}");
+                _wordCategories = new Dictionary<string, List<string>>();
+            }
+        }
+
+        public async Task<List<string>> GetWordsAsync(string category)
+        {
+            // If word categories are empty, load them from the JSON file
+            if (_wordCategories == null || _wordCategories.Count == 0)
+            {
+                await LoadWordsFromJsonAsync();
+            }
+
+            if (_wordCategories.TryGetValue(category, out var words))
+            {
+                return words;
+            }
+
+            return new List<string>(); // Return empty list if category doesn't exist
         }
     }
 }
