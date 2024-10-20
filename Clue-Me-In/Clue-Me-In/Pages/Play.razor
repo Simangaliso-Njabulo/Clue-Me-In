@@ -12,22 +12,22 @@
         </FluentStack>
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Center" HorizontalGap="15">
+            <!-- Decrease time by 30 seconds -->
+            <FluentButton IconEnd="@(new Icons.Regular.Size24.Subtract())" OnClick="DecreaseTime"></FluentButton>
+
+            <!-- Timer display button -->
             <FluentButton IconEnd="@(new Icons.Regular.Size24.Timer())" OnClick="StartCountdown">
                 @timerDisplay
             </FluentButton>
-            <FluentCounterBadge Count="correctCount"
-                                Appearance="Appearance.Neutral"
-                                HorizontalPosition="-25">
-                <FluentButton Appearance="Appearance.Accent">
-                    <FluentIcon Value="@(new Icons.Regular.Size24.CheckmarkCircle())" Color="@Color.Fill" />
-                </FluentButton>
-            </FluentCounterBadge>
+
+            <!-- Increase time by 30 seconds -->
+            <FluentButton IconEnd="@(new Icons.Regular.Size24.Add())" OnClick="IncreaseTime"></FluentButton>
         </FluentStack>
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right">
-            <FluentButton IconEnd="@(new Icons.Regular.Size20.CheckmarkCircle().WithColor(Color.Success))" OnClick="OnCorrect">Correct</FluentButton>
-            <FluentButton IconEnd="@(new Icons.Regular.Size20.DismissCircle().WithColor(Color.Error))" OnClick="OnIncorrect">Incorrect</FluentButton>
-            <FluentButton IconEnd="@(new Icons.Regular.Size20.ArrowCircleRight().WithColor(Color.Info))" OnClick="OnSkip">Skip</FluentButton>
+            <FluentButton>Score: @correctCount</FluentButton>
+            <FluentButton IconEnd="@(new Icons.Regular.Size24.CheckmarkCircle().WithColor(Color.Success))" OnClick="OnCorrect">Correct</FluentButton>
+            <FluentButton IconEnd="@(new Icons.Regular.Size24.ArrowCircleRight().WithColor(Color.Error))" OnClick="OnSkip">Skip</FluentButton>
         </FluentStack>
 
     </FluentStack>
@@ -49,6 +49,8 @@
     private TimeSpan remainingTime; // Remaining time for the countdown
     private string timerDisplay = ""; // String to display on the countdown button
     private CancellationTokenSource cancellationTokenSource = new(); // To manage the countdown task
+    private readonly TimeSpan maxTime = TimeSpan.FromMinutes(5); // Maximum allowed time (5 minutes)
+    private readonly TimeSpan minTime = TimeSpan.FromSeconds(30); // Minimum allowed time (30 seconds)
 
     protected override async Task OnInitializedAsync()
     {
@@ -58,6 +60,7 @@
             selectedCategory = categories[0]; // Set default selected category if available
             await LoadWordsForSelectedCategory(); // Load words for the default category
             timerDisplay = "01:00"; // Initial display for 1 minute
+            remainingTime = TimeSpan.FromMinutes(1); // Initialize the timer to 1 minute
         }
     }
 
@@ -107,12 +110,6 @@
         GetNextWord();
     }
 
-    // Handle the "Incorrect" button click
-    private void OnIncorrect()
-    {
-        GetNextWord();
-    }
-
     // Handle the "Skip" button click
     private void OnSkip()
     {
@@ -122,13 +119,12 @@
     // Starts the countdown
     private void StartCountdown()
     {
-        remainingTime = TimeSpan.FromMinutes(1); // Set to 1 minute
         cancellationTokenSource = new CancellationTokenSource();
 
         // Run the countdown in a background task
         Task.Run(async () =>
         {
-            while (remainingTime.TotalSeconds >= 0)
+            while (remainingTime.TotalSeconds >= 0 && !cancellationTokenSource.Token.IsCancellationRequested)
             {
                 timerDisplay = remainingTime.ToString(@"mm\:ss"); // Update the button display
                 await Task.Delay(1000); // Wait for 1 second
@@ -136,8 +132,11 @@
                 StateHasChanged(); // Trigger a UI refresh
             }
 
-            timerDisplay = "Time's up!"; // Notify when time is up
-            StopCountdown(); // Stop the countdown
+            if (remainingTime.TotalSeconds <= 0)
+            {
+                timerDisplay = "Time's up!"; // Notify when time is up
+                StopCountdown(); // Stop the countdown
+            }
         });
     }
 
@@ -145,5 +144,37 @@
     private void StopCountdown()
     {
         cancellationTokenSource?.Cancel();
+    }
+
+    // Increase the time by 30 seconds (up to a maximum of 5 minutes)
+    private void IncreaseTime()
+    {
+        if (remainingTime + TimeSpan.FromSeconds(30) <= maxTime)
+        {
+            remainingTime = remainingTime.Add(TimeSpan.FromSeconds(30));
+        }
+        else
+        {
+            remainingTime = maxTime; // Cap at maxTime
+        }
+
+        timerDisplay = remainingTime.ToString(@"mm\:ss"); // Update the display
+        StateHasChanged(); // Refresh UI
+    }
+
+    // Decrease the time by 30 seconds (but not below 30 seconds)
+    private void DecreaseTime()
+    {
+        if (remainingTime.TotalSeconds - 30 >= minTime.TotalSeconds)
+        {
+            remainingTime = remainingTime.Add(TimeSpan.FromSeconds(-30));
+        }
+        else
+        {
+            remainingTime = minTime; // Floor at 30 seconds
+        }
+
+        timerDisplay = remainingTime.ToString(@"mm\:ss"); // Update the display
+        StateHasChanged(); // Refresh UI
     }
 }
