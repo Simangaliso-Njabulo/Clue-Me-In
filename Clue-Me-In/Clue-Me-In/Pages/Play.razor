@@ -47,8 +47,8 @@
 
     private int correctCount = 0; // Counter for correct answers
     private TimeSpan remainingTime; // Remaining time for the countdown
-    private string timerDisplay; // String to display on the countdown button
-    private CancellationTokenSource cancellationTokenSource; // To manage the countdown task
+    private string timerDisplay = ""; // String to display on the countdown button
+    private CancellationTokenSource cancellationTokenSource = new(); // To manage the countdown task
 
     protected override async Task OnInitializedAsync()
     {
@@ -128,7 +128,7 @@
         // Run the countdown in a background task
         Task.Run(async () =>
         {
-            while (remainingTime.TotalSeconds > 0)
+            while (remainingTime.TotalSeconds >= 0)
             {
                 timerDisplay = remainingTime.ToString(@"mm\:ss"); // Update the button display
                 await Task.Delay(1000); // Wait for 1 second
