@@ -12,7 +12,9 @@
         </FluentStack>
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Center" HorizontalGap="15">
-            <FluentTimePicker />
+            <FluentButton IconEnd="@(new Icons.Regular.Size24.Timer())" OnClick="StartCountdown">
+                @timerDisplay
+            </FluentButton>
             <FluentCounterBadge Count="correctCount"
                                 Appearance="Appearance.Neutral"
                                 HorizontalPosition="-25">
@@ -21,7 +23,6 @@
                 </FluentButton>
             </FluentCounterBadge>
         </FluentStack>
-
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right">
             <FluentButton IconEnd="@(new Icons.Regular.Size20.CheckmarkCircle().WithColor(Color.Success))" OnClick="OnCorrect">Correct</FluentButton>
@@ -45,6 +46,9 @@
     private string selectedCategory = string.Empty; // Selected category
 
     private int correctCount = 0; // Counter for correct answers
+    private TimeSpan remainingTime; // Remaining time for the countdown
+    private string timerDisplay; // String to display on the countdown button
+    private CancellationTokenSource cancellationTokenSource; // To manage the countdown task
 
     protected override async Task OnInitializedAsync()
     {
@@ -53,6 +57,7 @@
         {
             selectedCategory = categories[0]; // Set default selected category if available
             await LoadWordsForSelectedCategory(); // Load words for the default category
+            timerDisplay = "01:00"; // Initial display for 1 minute
         }
     }
 
@@ -91,6 +96,7 @@
         else
         {
             currentWord = "No more words available!"; // Inform the user when all words have been used
+            StopCountdown(); // Stop the countdown when words run out
         }
     }
 
@@ -111,5 +117,33 @@
     private void OnSkip()
     {
         GetNextWord();
+    }
+
+    // Starts the countdown
+    private void StartCountdown()
+    {
+        remainingTime = TimeSpan.FromMinutes(1); // Set to 1 minute
+        cancellationTokenSource = new CancellationTokenSource();
+
+        // Run the countdown in a background task
+        Task.Run(async () =>
+        {
+            while (remainingTime.TotalSeconds > 0)
+            {
+                timerDisplay = remainingTime.ToString(@"mm\:ss"); // Update the button display
+                await Task.Delay(1000); // Wait for 1 second
+                remainingTime = remainingTime.Add(TimeSpan.FromSeconds(-1)); // Decrement the timer
+                StateHasChanged(); // Trigger a UI refresh
+            }
+
+            timerDisplay = "Time's up!"; // Notify when time is up
+            StopCountdown(); // Stop the countdown
+        });
+    }
+
+    // Stop the countdown
+    private void StopCountdown()
+    {
+        cancellationTokenSource?.Cancel();
     }
 }
