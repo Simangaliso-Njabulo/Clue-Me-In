@@ -4,8 +4,8 @@
 <div class="card-container">
     <FluentStack HorizontalGap="15" HorizontalAlignment="HorizontalAlignment.Center" class="button-stack">
         <FluentButton IconEnd="@(new Icons.Regular.Size20.CheckmarkCircle().WithColor(Color.Success))" OnClick="OnCorrect">Correct</FluentButton>
-        <FluentButton IconEnd="@(new Icons.Regular.Size20.DismissCircle().WithColor("red"))" OnClick="OnIncorrect">Incorrect</FluentButton>
-        <FluentButton IconEnd="@(new Icons.Regular.Size20.ArrowCircleRight().WithColor("blue"))" OnClick="OnSkip">Skip</FluentButton>
+        <FluentButton IconEnd="@(new Icons.Regular.Size20.DismissCircle().WithColor(Color.Error))" OnClick="OnIncorrect">Incorrect</FluentButton>
+        <FluentButton IconEnd="@(new Icons.Regular.Size20.ArrowCircleRight().WithColor(Color.Info))" OnClick="OnSkip">Skip</FluentButton>
     </FluentStack>
 
     <FluentCard class="card">
