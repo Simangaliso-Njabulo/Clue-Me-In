@@ -25,7 +25,7 @@
         </FluentStack>
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right">
-            <FluentButton>Score: @correctCount</FluentButton>
+            <FluentButton OnClick="OnScore">Score: @correctCount</FluentButton>
             <FluentButton IconEnd="@(new Icons.Regular.Size24.CheckmarkCircle().WithColor(Color.Success))" OnClick="OnCorrect">Correct</FluentButton>
             <FluentButton IconEnd="@(new Icons.Regular.Size24.ArrowCircleRight().WithColor(Color.Error))" OnClick="OnSkip">Skip</FluentButton>
         </FluentStack>
@@ -40,7 +40,6 @@
 
 @code {
     private List<string> words = new List<string>();
-    private List<string> usedWords = new List<string>();
     private string currentWord = string.Empty;
     private List<string> categories = new List<string>();
     private string selectedCategory = string.Empty; // Selected category
@@ -91,18 +90,24 @@
 
     private void GetNextWord()
     {
-        if (usedWords.Count < words.Count)
+        if (words.Count == 0)
         {
-            // Get the next word that hasn't been used
-            currentWord = words[usedWords.Count];
-            usedWords.Add(currentWord); // Mark this word as used
+            // If all words have been used, inform the user
+            currentWord = "No words available. Please choose another category or reload page";
+            StopCountdown(); // Stop the countdown
+            return;
         }
-        else
-        {
-            currentWord = "No more words available!"; // Inform the user when all words have been used
-            StopCountdown(); // Stop the countdown when words run out
-        }
+
+        // Pick a random index for the next word
+        int randomIndex = new Random().Next(words.Count);
+
+        // Get the word at the random index
+        currentWord = words[randomIndex];
+
+        // Remove the selected word from the words list to avoid repetition
+        words.RemoveAt(randomIndex);
     }
+    private void OnScore() => correctCount = 0;
 
     // Handle the "Correct" button click
     private void OnCorrect()
@@ -112,10 +117,7 @@
     }
 
     // Handle the "Skip" button click
-    private void OnSkip()
-    {
-        GetNextWord();
-    }
+    private void OnSkip() => GetNextWord();
 
     // Toggle between starting and pausing the timer
     private void ToggleTimer()
