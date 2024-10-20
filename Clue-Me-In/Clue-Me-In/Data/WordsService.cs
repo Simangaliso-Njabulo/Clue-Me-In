@@ -18,7 +18,7 @@ namespace Data
         {
             try
             {
-                var jsonFilePath = "Words.json";
+                var jsonFilePath = "data/Words.json";
 
                 var jsonData = await _httpClient.GetStringAsync(jsonFilePath);
 

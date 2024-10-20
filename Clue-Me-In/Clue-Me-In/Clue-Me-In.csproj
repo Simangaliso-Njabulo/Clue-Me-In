@@ -14,7 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="wwwroot\Words.json">
+    <Content Update="wwwroot\data\Words.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\data\MzansiWords.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
