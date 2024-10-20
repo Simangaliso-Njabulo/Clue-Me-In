@@ -7,6 +7,7 @@
 
         <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Left">
             <FluentSelect Label="Category" @bind-Value="selectedCategory"
+                          @onchange="OnCategoryChanged"
                           Items="categories" />
         </FluentStack>
 
@@ -37,10 +38,21 @@
         if (categories.Count > 0)
         {
             selectedCategory = categories[0]; // Set default selected category if available
-            words = await WordsService.GetWordsAsync(selectedCategory); // Get the words from the service
-            ShuffleWords();
-            GetNextWord();
+            await LoadWordsForSelectedCategory(); // Load words for the default category
         }
+    }
+
+    private async Task LoadWordsForSelectedCategory()
+    {
+        words = await WordsService.GetWordsAsync(selectedCategory); // Get the words from the selected category
+        ShuffleWords(); // Shuffle the words
+        GetNextWord(); // Get the first word to display
+    }
+
+    private void OnCategoryChanged(ChangeEventArgs e)
+    {
+        selectedCategory = e.Value.ToString(); // Update selected category
+        LoadWordsForSelectedCategory(); // Load words for the newly selected category
     }
 
     private void ShuffleWords()
