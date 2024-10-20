@@ -14,47 +14,57 @@
 </div>
 
 @code {
-    private List<string> words = new();
+    private List<string> words = new List<string>();
+    private List<string> usedWords = new List<string>();
     private string currentWord = string.Empty;
-    private int currentWordIndex = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        // Asynchronously fetch the words from the "Music" category
-        words = await WordsService.GetWordsAsync("Music");
+        words = await WordsService.GetWordsAsync("Music"); // Get the words from the service
+        ShuffleWords();
+        GetNextWord();
+    }
 
-        if (words.Count > 0)
+    private void ShuffleWords()
+    {
+        Random rng = new Random();
+        int n = words.Count;
+        while (n > 1)
         {
-            currentWord = words[currentWordIndex]; // Display the first word
+            int k = rng.Next(n--);
+            (words[n], words[k]) = (words[k], words[n]); // Swap elements
+        }
+    }
+
+    private void GetNextWord()
+    {
+        if (usedWords.Count < words.Count)
+        {
+            // Get the next word that hasn't been used
+            currentWord = words[usedWords.Count];
+            usedWords.Add(currentWord); // Mark this word as used
+        }
+        else
+        {
+            currentWord = "No more words available!"; // Inform the user when all words have been used
         }
     }
 
     // Handle the "Correct" button click
     private void OnCorrect()
     {
-        NextWord();
+        GetNextWord();
     }
 
     // Handle the "Incorrect" button click
     private void OnIncorrect()
     {
-        NextWord();
+        GetNextWord();
     }
 
     // Handle the "Skip" button click
     private void OnSkip()
     {
-        NextWord();
-    }
-
-    // Move to the next word
-    private void NextWord()
-    {
-        currentWordIndex++;
-        if (currentWordIndex >= words.Count)
-        {
-            currentWordIndex = 0; // Loop back to the first word if all words are used
-        }
-        currentWord = words[currentWordIndex];
+        GetNextWord();
     }
 }
