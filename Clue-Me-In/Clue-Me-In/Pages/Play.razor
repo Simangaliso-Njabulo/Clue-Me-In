@@ -49,10 +49,10 @@
         GetNextWord(); // Get the first word to display
     }
 
-    private void OnCategoryChanged(ChangeEventArgs e)
+    private async Task OnCategoryChanged(ChangeEventArgs e)
     {
-        selectedCategory = e.Value.ToString(); // Update selected category
-        LoadWordsForSelectedCategory(); // Load words for the newly selected category
+        selectedCategory = e.Value?.ToString() ?? string.Empty; // Safely convert to string, default to empty if null
+        await LoadWordsForSelectedCategory(); // Await the call to ensure it completes
     }
 
     private void ShuffleWords()
