@@ -6,8 +6,8 @@
     <FluentStack HorizontalGap="15" HorizontalAlignment="HorizontalAlignment.Center" VerticalAlignment="VerticalAlignment.Bottom" Width="90%" class="button-stack">
 
         <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Left">
-            <FluentSelect Label="Category"
-                          Items="@(Enum.GetValues<DesignThemeModes>())" />
+            <FluentSelect Label="Category" @bind-Value="selectedCategory"
+                          Items="categories" />
         </FluentStack>
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right">
@@ -15,7 +15,7 @@
             <FluentButton IconEnd="@(new Icons.Regular.Size20.DismissCircle().WithColor(Color.Error))" OnClick="OnIncorrect">Incorrect</FluentButton>
             <FluentButton IconEnd="@(new Icons.Regular.Size20.ArrowCircleRight().WithColor(Color.Info))" OnClick="OnSkip">Skip</FluentButton>
         </FluentStack>
-       
+
     </FluentStack>
 
     <FluentCard class="card">
@@ -28,12 +28,19 @@
     private List<string> words = new List<string>();
     private List<string> usedWords = new List<string>();
     private string currentWord = string.Empty;
+    private List<string> categories = new List<string>();
+    private string selectedCategory = string.Empty; // Selected category
 
     protected override async Task OnInitializedAsync()
     {
-        words = await WordsService.GetWordsAsync("Music"); // Get the words from the service
-        ShuffleWords();
-        GetNextWord();
+        categories = await WordsService.GetCategoriesAsync(); // Get the available categories
+        if (categories.Count > 0)
+        {
+            selectedCategory = categories[0]; // Set default selected category if available
+            words = await WordsService.GetWordsAsync(selectedCategory); // Get the words from the service
+            ShuffleWords();
+            GetNextWord();
+        }
     }
 
     private void ShuffleWords()

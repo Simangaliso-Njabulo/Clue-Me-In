@@ -42,14 +42,23 @@ namespace Data
                 await LoadWordsFromJsonAsync();
             }
 
-            #pragma warning disable CS8602 // Dereference of a possibly null reference.
             if (_wordCategories.TryGetValue(category, out var words))
             {
                 return words;
             }
-            #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
             return new List<string>(); // Return empty list if category doesn't exist
+        }
+
+        public async Task<List<string>> GetCategoriesAsync()
+        {
+            // If word categories are empty, load them from the JSON file
+            if (_wordCategories == null || _wordCategories.Count == 0)
+            {
+                await LoadWordsFromJsonAsync();
+            }
+
+            return _wordCategories.Keys.ToList(); // Return the list of category names
         }
     }
 }
