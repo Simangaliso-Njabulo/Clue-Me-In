@@ -11,6 +11,18 @@
                           Items="categories" />
         </FluentStack>
 
+        <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Center" HorizontalGap="15">
+            <FluentTimePicker />
+            <FluentCounterBadge Count="correctCount"
+                                Appearance="Appearance.Neutral"
+                                HorizontalPosition="-25">
+                <FluentButton Appearance="Appearance.Accent">
+                    <FluentIcon Value="@(new Icons.Regular.Size24.CheckmarkCircle())" Color="@Color.Fill" />
+                </FluentButton>
+            </FluentCounterBadge>
+        </FluentStack>
+
+
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right">
             <FluentButton IconEnd="@(new Icons.Regular.Size20.CheckmarkCircle().WithColor(Color.Success))" OnClick="OnCorrect">Correct</FluentButton>
             <FluentButton IconEnd="@(new Icons.Regular.Size20.DismissCircle().WithColor(Color.Error))" OnClick="OnIncorrect">Incorrect</FluentButton>
@@ -31,6 +43,8 @@
     private string currentWord = string.Empty;
     private List<string> categories = new List<string>();
     private string selectedCategory = string.Empty; // Selected category
+
+    private int correctCount = 0; // Counter for correct answers
 
     protected override async Task OnInitializedAsync()
     {
@@ -83,6 +97,7 @@
     // Handle the "Correct" button click
     private void OnCorrect()
     {
+        correctCount++; // Increase correct answer count
         GetNextWord();
     }
 
