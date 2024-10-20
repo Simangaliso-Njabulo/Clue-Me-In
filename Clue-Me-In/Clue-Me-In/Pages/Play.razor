@@ -16,7 +16,7 @@
             <FluentButton IconEnd="@(new Icons.Regular.Size24.Subtract())" OnClick="DecreaseTime"></FluentButton>
 
             <!-- Timer display button -->
-            <FluentButton IconEnd="@(new Icons.Regular.Size24.Timer())" OnClick="StartCountdown">
+            <FluentButton IconEnd="@(new Icons.Regular.Size24.Timer())" OnClick="ToggleTimer">
                 @timerDisplay
             </FluentButton>
 
@@ -51,6 +51,7 @@
     private CancellationTokenSource cancellationTokenSource = new(); // To manage the countdown task
     private readonly TimeSpan maxTime = TimeSpan.FromMinutes(5); // Maximum allowed time (5 minutes)
     private readonly TimeSpan minTime = TimeSpan.FromSeconds(30); // Minimum allowed time (30 seconds)
+    private bool isTimerRunning = false; // To track if the timer is running
 
     protected override async Task OnInitializedAsync()
     {
@@ -116,65 +117,94 @@
         GetNextWord();
     }
 
+    // Toggle between starting and pausing the timer
+    private void ToggleTimer()
+    {
+        if (isTimerRunning)
+        {
+            // Pause the timer
+            StopCountdown();
+        }
+        else
+        {
+            // Start or resume the timer
+            StartCountdown();
+        }
+    }
+
     // Starts the countdown
     private void StartCountdown()
     {
+        isTimerRunning = true; // Mark timer as running
         cancellationTokenSource = new CancellationTokenSource();
 
         // Run the countdown in a background task
         Task.Run(async () =>
         {
-            while (remainingTime.TotalSeconds >= 0 && !cancellationTokenSource.Token.IsCancellationRequested)
+            while (remainingTime.TotalSeconds > 0 && !cancellationTokenSource.Token.IsCancellationRequested)
             {
-                timerDisplay = remainingTime.ToString(@"mm\:ss"); // Update the button display
                 await Task.Delay(1000); // Wait for 1 second
                 remainingTime = remainingTime.Add(TimeSpan.FromSeconds(-1)); // Decrement the timer
+
+                // Update the button display
+                timerDisplay = remainingTime.ToString(@"mm\:ss");
                 StateHasChanged(); // Trigger a UI refresh
             }
 
+            // Make sure the UI displays 00:00 before stopping the timer
             if (remainingTime.TotalSeconds <= 0)
             {
-                timerDisplay = "Time's up!"; // Notify when time is up
-                StopCountdown(); // Stop the countdown
+                timerDisplay = "00:00"; // Ensure 00:00 is displayed
+                StateHasChanged(); // Update the UI one last time
             }
+
+            StopCountdown(); // Stop the countdown after the time runs out
         });
     }
+
 
     // Stop the countdown
     private void StopCountdown()
     {
-        cancellationTokenSource?.Cancel();
+        isTimerRunning = false; // Mark timer as not running
+        cancellationTokenSource?.Cancel(); // Cancel the current countdown
     }
 
     // Increase the time by 30 seconds (up to a maximum of 5 minutes)
     private void IncreaseTime()
     {
-        if (remainingTime + TimeSpan.FromSeconds(30) <= maxTime)
+        if (!isTimerRunning) // Prevent changing time while timer is running
         {
-            remainingTime = remainingTime.Add(TimeSpan.FromSeconds(30));
-        }
-        else
-        {
-            remainingTime = maxTime; // Cap at maxTime
-        }
+            if (remainingTime + TimeSpan.FromSeconds(30) <= maxTime)
+            {
+                remainingTime = remainingTime.Add(TimeSpan.FromSeconds(30));
+            }
+            else
+            {
+                remainingTime = maxTime; // Cap at maxTime
+            }
 
-        timerDisplay = remainingTime.ToString(@"mm\:ss"); // Update the display
-        StateHasChanged(); // Refresh UI
+            timerDisplay = remainingTime.ToString(@"mm\:ss"); // Update the display
+            StateHasChanged(); // Refresh UI
+        }
     }
 
     // Decrease the time by 30 seconds (but not below 30 seconds)
     private void DecreaseTime()
     {
-        if (remainingTime.TotalSeconds - 30 >= minTime.TotalSeconds)
+        if (!isTimerRunning) // Prevent changing time while timer is running
         {
-            remainingTime = remainingTime.Add(TimeSpan.FromSeconds(-30));
-        }
-        else
-        {
-            remainingTime = minTime; // Floor at 30 seconds
-        }
+            if (remainingTime.TotalSeconds - 30 >= minTime.TotalSeconds)
+            {
+                remainingTime = remainingTime.Add(TimeSpan.FromSeconds(-30));
+            }
+            else
+            {
+                remainingTime = minTime; // Floor at 30 seconds
+            }
 
-        timerDisplay = remainingTime.ToString(@"mm\:ss"); // Update the display
-        StateHasChanged(); // Refresh UI
+            timerDisplay = remainingTime.ToString(@"mm\:ss"); // Update the display
+            StateHasChanged(); // Refresh UI
+        }
     }
 }
