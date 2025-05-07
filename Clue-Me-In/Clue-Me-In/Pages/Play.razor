@@ -13,21 +13,21 @@
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Center" HorizontalGap="15">
             <!-- Decrease time by 30 seconds -->
-            <FluentButton IconEnd="@(new Icons.Regular.Size24.Subtract())" OnClick="DecreaseTime"></FluentButton>
+            <FluentButton IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Subtract())" OnClick="DecreaseTime"></FluentButton>
 
             <!-- Timer display button -->
-            <FluentButton IconEnd="@(new Icons.Regular.Size24.Timer())" OnClick="ToggleTimer">
+            <FluentButton IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Timer())" OnClick="ToggleTimer">
                 @timerDisplay
             </FluentButton>
 
             <!-- Increase time by 30 seconds -->
-            <FluentButton IconEnd="@(new Icons.Regular.Size24.Add())" OnClick="IncreaseTime"></FluentButton>
+            <FluentButton IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Add())" OnClick="IncreaseTime"></FluentButton>
         </FluentStack>
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right">
             <FluentButton OnClick="OnScore">Score: @correctCount</FluentButton>
-            <FluentButton IconEnd="@(new Icons.Regular.Size24.CheckmarkCircle().WithColor(Color.Success))" OnClick="OnCorrect">Correct</FluentButton>
-            <FluentButton IconEnd="@(new Icons.Regular.Size24.ArrowCircleRight().WithColor(Color.Error))" OnClick="OnSkip">Skip</FluentButton>
+            <FluentButton IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.CheckmarkCircle().WithColor(Color.Success))" OnClick="OnCorrect">Correct</FluentButton>
+            <FluentButton IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.ArrowCircleRight().WithColor(Color.Error))" OnClick="OnSkip">Skip</FluentButton>
         </FluentStack>
 
     </FluentStack>
@@ -42,39 +42,39 @@
     private List<string> words = new List<string>();
     private string currentWord = string.Empty;
     private List<string> categories = new List<string>();
-    private string selectedCategory = string.Empty; // Selected category
+    private string selectedCategory = string.Empty;
 
-    private int correctCount = 0; // Counter for correct answers
-    private TimeSpan remainingTime; // Remaining time for the countdown
+    private int correctCount = 0;
+    private TimeSpan remainingTime; 
     private string timerDisplay = ""; // String to display on the countdown button
     private CancellationTokenSource cancellationTokenSource = new(); // To manage the countdown task
-    private readonly TimeSpan maxTime = TimeSpan.FromMinutes(5); // Maximum allowed time (5 minutes)
-    private readonly TimeSpan minTime = TimeSpan.FromSeconds(30); // Minimum allowed time (30 seconds)
-    private bool isTimerRunning = false; // To track if the timer is running
+    private readonly TimeSpan maxTime = TimeSpan.FromMinutes(5); 
+    private readonly TimeSpan minTime = TimeSpan.FromSeconds(30); 
+    private bool isTimerRunning = false; 
 
     protected override async Task OnInitializedAsync()
     {
-        categories = await WordsService.GetCategoriesAsync(); // Get the available categories
+        categories = await WordsService.GetCategoriesAsync(); 
         if (categories.Count > 0)
         {
-            selectedCategory = categories[0]; // Set default selected category if available
-            await LoadWordsForSelectedCategory(); // Load words for the default category
-            timerDisplay = "01:00"; // Initial display for 1 minute
-            remainingTime = TimeSpan.FromMinutes(1); // Initialize the timer to 1 minute
+            selectedCategory = categories[0];
+            await LoadWordsForSelectedCategory();
+            timerDisplay = "01:00";
+            remainingTime = TimeSpan.FromMinutes(1); 
         }
     }
 
     private async Task LoadWordsForSelectedCategory()
     {
-        words = await WordsService.GetWordsAsync(selectedCategory); // Get the words from the selected category
-        ShuffleWords(); // Shuffle the words
-        GetNextWord(); // Get the first word to display
+        words = await WordsService.GetWordsAsync(selectedCategory);
+        ShuffleWords();
+        GetNextWord(); 
     }
 
     private async Task OnCategoryChanged(ChangeEventArgs e)
     {
-        selectedCategory = e.Value?.ToString() ?? string.Empty; // Safely convert to string, default to empty if null
-        await LoadWordsForSelectedCategory(); // Await the call to ensure it completes
+        selectedCategory = e.Value?.ToString() ?? string.Empty;
+        await LoadWordsForSelectedCategory();
     }
 
     private void ShuffleWords()
@@ -84,7 +84,7 @@
         while (n > 1)
         {
             int k = rng.Next(n--);
-            (words[n], words[k]) = (words[k], words[n]); // Swap elements
+            (words[n], words[k]) = (words[k], words[n]);
         }
     }
 
@@ -92,52 +92,40 @@
     {
         if (words.Count == 0)
         {
-            // If all words have been used, inform the user
             currentWord = "No words available. Please choose another category or reload page";
-            StopCountdown(); // Stop the countdown
+            StopCountdown();
             return;
         }
 
-        // Pick a random index for the next word
         int randomIndex = new Random().Next(words.Count);
-
-        // Get the word at the random index
         currentWord = words[randomIndex];
-
-        // Remove the selected word from the words list to avoid repetition
         words.RemoveAt(randomIndex);
     }
     private void OnScore() => correctCount = 0;
 
-    // Handle the "Correct" button click
     private void OnCorrect()
     {
-        correctCount++; // Increase correct answer count
+        correctCount++;
         GetNextWord();
     }
 
-    // Handle the "Skip" button click
     private void OnSkip() => GetNextWord();
 
-    // Toggle between starting and pausing the timer
     private void ToggleTimer()
     {
         if (isTimerRunning)
         {
-            // Pause the timer
             StopCountdown();
         }
         else
         {
-            // Start or resume the timer
             StartCountdown();
         }
     }
 
-    // Starts the countdown
     private void StartCountdown()
     {
-        isTimerRunning = true; // Mark timer as running
+        isTimerRunning = true; 
         cancellationTokenSource = new CancellationTokenSource();
 
         // Run the countdown in a background task
@@ -147,35 +135,29 @@
             {
                 await Task.Delay(1000); // Wait for 1 second
                 remainingTime = remainingTime.Add(TimeSpan.FromSeconds(-1)); // Decrement the timer
-
-                // Update the button display
                 timerDisplay = remainingTime.ToString(@"mm\:ss");
                 StateHasChanged(); // Trigger a UI refresh
             }
 
-            // Make sure the UI displays 00:00 before stopping the timer
             if (remainingTime.TotalSeconds <= 0)
             {
-                timerDisplay = "00:00"; // Ensure 00:00 is displayed
-                StateHasChanged(); // Update the UI one last time
+                timerDisplay = "00:00"; 
+                StateHasChanged(); 
             }
 
-            StopCountdown(); // Stop the countdown after the time runs out
+            StopCountdown();
         });
     }
 
-
-    // Stop the countdown
     private void StopCountdown()
     {
-        isTimerRunning = false; // Mark timer as not running
-        cancellationTokenSource?.Cancel(); // Cancel the current countdown
+        isTimerRunning = false;
+        cancellationTokenSource?.Cancel();
     }
 
-    // Increase the time by 30 seconds (up to a maximum of 5 minutes)
     private void IncreaseTime()
     {
-        if (!isTimerRunning) // Prevent changing time while timer is running
+        if (!isTimerRunning)
         {
             if (remainingTime + TimeSpan.FromSeconds(30) <= maxTime)
             {
@@ -183,18 +165,17 @@
             }
             else
             {
-                remainingTime = maxTime; // Cap at maxTime
+                remainingTime = maxTime;
             }
 
-            timerDisplay = remainingTime.ToString(@"mm\:ss"); // Update the display
-            StateHasChanged(); // Refresh UI
+            timerDisplay = remainingTime.ToString(@"mm\:ss"); 
+            StateHasChanged();
         }
     }
 
-    // Decrease the time by 30 seconds (but not below 30 seconds)
     private void DecreaseTime()
     {
-        if (!isTimerRunning) // Prevent changing time while timer is running
+        if (!isTimerRunning)
         {
             if (remainingTime.TotalSeconds - 30 >= minTime.TotalSeconds)
             {
@@ -202,11 +183,11 @@
             }
             else
             {
-                remainingTime = minTime; // Floor at 30 seconds
+                remainingTime = minTime;
             }
 
-            timerDisplay = remainingTime.ToString(@"mm\:ss"); // Update the display
-            StateHasChanged(); // Refresh UI
+            timerDisplay = remainingTime.ToString(@"mm\:ss"); 
+            StateHasChanged(); 
         }
     }
 }
