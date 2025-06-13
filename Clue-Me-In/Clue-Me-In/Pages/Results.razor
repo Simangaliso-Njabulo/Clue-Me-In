@@ -2,37 +2,66 @@
 @inject ResultsService ResultsService
 @inject NavigationManager NavigationManager
 
-<h3>Game Over!</h3>
+<FluentStack Orientation="Orientation.Vertical"
+             HorizontalAlignment="HorizontalAlignment.Center"
+             HorizontalGap="20"
+             Wrap="true"
+             Style="width: 100%; align-items: center; margin-bottom: 2rem;">
 
-<FluentCard>
-    <h4>✅ Correct Words</h4>
-    <ul>
-        @foreach (var word in ResultsService.CorrectWords)
-        {
-            <li style="display: flex; align-items: center; gap: 8px;">
-                <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size20.CheckmarkCircle().WithColor(Color.Success))" />
-                @word
-            </li>
-        }
-    </ul>
+    <!-- Centered Title -->
+    <h3 style="text-align: center; font-size: 2rem; margin-bottom: 2rem;">Game Over!</h3>
 
-    <br />
+    <!-- Stack for results columns -->
+    <FluentStack Orientation="Orientation.Horizontal"
+                 HorizontalAlignment="HorizontalAlignment.Center"
+                 HorizontalGap="20"
+                 Wrap="false"
+                 Style="width: 100%; align-items: stretch; margin-bottom: 2rem;">
 
-    <h4>❌ Skipped Words</h4>
-    <ul>
-        @foreach (var word in ResultsService.SkippedWords)
-        {
-            <li style="display: flex; align-items: center; gap: 8px;">
-                <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size20.Dismiss().WithColor(Color.Error))" />
-                @word
-            </li>
-        }
-    </ul>
+        <FluentCard style="width: 90%; display: flex; flex-direction: column; padding: 1rem; align-items: center;">
 
-    <br />
+            <!-- Two-column layout for correct and skipped words -->
+            <div style="display: flex; justify-content: center; gap: 2rem; width: 100%; max-width: 800px;">
 
-    <FluentButton OnClick="RestartGame">Play Again</FluentButton>
-</FluentCard>
+                <!-- Correct Words Column -->
+                <div style="justify-content: center">
+                    <h4>✅ Correct Words</h4>
+                    <ul style="list-style: none; padding-left: 0;">
+                        @foreach (var word in ResultsService.CorrectWords)
+                        {
+                            <li style="display: flex; align-items: center; gap: 8px;">
+                                <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size20.CheckmarkCircle().WithColor(Color.Success))" />
+                                @word
+                            </li>
+                        }
+                    </ul>
+                </div>
+
+                <!-- Skipped Words Column -->
+                <div style="justify-content: center">
+                    <h4>❌ Skipped Words</h4>
+                    <ul style="list-style: none; padding-left: 0;">
+                        @foreach (var word in ResultsService.SkippedWords)
+                        {
+                            <li style="display: flex; align-items: center; gap: 8px;">
+                                <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size20.Dismiss().WithColor(Color.Error))" />
+                                @word
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+        </FluentCard>
+
+    </FluentStack>
+
+    <!-- Centered Play Again Button -->
+    <FluentStack HorizontalAlignment="HorizontalAlignment.Center">
+        <FluentButton OnClick="RestartGame">Play Again</FluentButton>
+    </FluentStack>
+
+</FluentStack>
 
 @code {
     private void RestartGame()
@@ -41,4 +70,3 @@
         NavigationManager.NavigateTo("/play");
     }
 }
-
