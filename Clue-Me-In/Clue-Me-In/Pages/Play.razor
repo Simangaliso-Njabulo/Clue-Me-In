@@ -27,26 +27,50 @@
         </FluentStack>
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right">
-            <FluentButton OnClick="OnScore">Score: @correctCount</FluentButton>
-            <FluentButton IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.CheckmarkCircle().WithColor(Color.Success))" OnClick="OnCorrect">Correct</FluentButton>
-            <FluentButton IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.ArrowCircleRight().WithColor(Color.Error))" OnClick="OnSkip">Skip</FluentButton>
+            <FluentButton 
+                Disabled="!isTimerRunning">
+                Score: @correctWords.Count
+            </FluentButton>
+
+            <FluentButton 
+                Disabled="!isTimerRunning"
+                IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.CheckmarkCircle().WithColor(Color.Success))"
+                OnClick="OnCorrect">
+                Correct
+            </FluentButton>
+
+            <FluentButton 
+                Disabled="!isTimerRunning"          
+                IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.ArrowCircleRight().WithColor(Color.Error))"
+                OnClick="OnSkip">
+                Skip
+            </FluentButton>
+
         </FluentStack>
 
     </FluentStack>
 
     <FluentCard class="card">
-        <p class="card-text">@currentWord</p>
+        <p class="card-text">
+            @(
+                isTimerRunning
+                ? currentWord
+                : !hasGameStarted
+                ? "Press the timer to start the game"
+                : "Press the timer to resume the game"
+                )
+        </p>
     </FluentCard>
 
 </div>
 
 @code {
+
     private List<string> words = new List<string>();
     private string currentWord = string.Empty;
     private List<string> categories = new List<string>();
     private string selectedCategory = string.Empty;
-
-    private int correctCount = 0;
+    private bool hasGameStarted = false;
     private List<string> correctWords = new();
     private List<string> skippedWords = new();
     private TimeSpan remainingTime; 
@@ -105,11 +129,9 @@
         currentWord = words[randomIndex];
         words.RemoveAt(randomIndex);
     }
-    private void OnScore() => correctCount = 0;
 
     private void OnCorrect()
     {
-        correctCount++;
         correctWords.Add(currentWord);
         GetNextWord();
     }
@@ -120,12 +142,8 @@
         GetNextWord();
     }
 
-    //[Inject] private NavigationManager NavigationManager { get; set; }
-
     private Task GoToResultsPage()
     {
-        // Pass correct/skipped words via a service or serialize them into query strings (advanced).
-        // We'll use a service for simplicity.
         ResultsService.CorrectWords = correctWords;
         ResultsService.SkippedWords = skippedWords;
 
@@ -133,7 +151,6 @@
         return Task.CompletedTask;
     }
 
-   
     private void ToggleTimer()
     {
         if (isTimerRunning)
@@ -148,7 +165,12 @@
 
     private void StartCountdown()
     {
-        isTimerRunning = true; 
+        if (!hasGameStarted)
+        {
+            hasGameStarted = true;
+        }
+
+        isTimerRunning = true;
         cancellationTokenSource = new CancellationTokenSource();
 
         // Run the countdown in a background task
@@ -156,17 +178,17 @@
         {
             while (remainingTime.TotalSeconds > 0 && !cancellationTokenSource.Token.IsCancellationRequested)
             {
-                await Task.Delay(1000); // Wait for 1 second
-                remainingTime = remainingTime.Add(TimeSpan.FromSeconds(-1)); // Decrement the timer
+                await Task.Delay(1000);
+                remainingTime = remainingTime.Add(TimeSpan.FromSeconds(-1));
                 timerDisplay = remainingTime.ToString(@"mm\:ss");
-                StateHasChanged(); // Trigger a UI refresh
+                StateHasChanged();
             }
 
             if (remainingTime.TotalSeconds <= 0)
             {
                 timerDisplay = "00:00";
                 await InvokeAsync(StateHasChanged);
-                await GoToResultsPage(); // Navigate to results
+                await GoToResultsPage();
             }
 
             StopCountdown();
