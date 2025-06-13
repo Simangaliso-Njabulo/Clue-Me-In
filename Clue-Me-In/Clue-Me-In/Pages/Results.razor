@@ -5,26 +5,34 @@
 <h3>Game Over!</h3>
 
 <FluentCard>
-    <h4>Correct Words</h4>
+    <h4>✅ Correct Words</h4>
     <ul>
         @foreach (var word in ResultsService.CorrectWords)
         {
-            <li>@word</li>
+            <li style="display: flex; align-items: center; gap: 8px;">
+                <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size20.CheckmarkCircle().WithColor(Color.Success))" />
+                @word
+            </li>
         }
     </ul>
+
     <br />
-    <h4>Skipped Words</h4>
+
+    <h4>❌ Skipped Words</h4>
     <ul>
         @foreach (var word in ResultsService.SkippedWords)
         {
-            <li>@word</li>
+            <li style="display: flex; align-items: center; gap: 8px;">
+                <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size20.Dismiss().WithColor(Color.Error))" />
+                @word
+            </li>
         }
     </ul>
+
     <br />
+
     <FluentButton OnClick="RestartGame">Play Again</FluentButton>
 </FluentCard>
-
-
 
 @code {
     private void RestartGame()
