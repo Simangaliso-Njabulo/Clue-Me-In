@@ -1,5 +1,7 @@
 ﻿@page "/play"
 @inject WordsService WordsService
+@inject ResultsService ResultsService
+@inject NavigationManager NavigationManager
 
 <div class="card-container">
 
@@ -7,8 +9,8 @@
 
         <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Left">
             <FluentSelect Label="Category" @bind-Value="selectedCategory"
-                          @onchange="OnCategoryChanged"
-                          Items="categories" />
+            @onchange="OnCategoryChanged"
+            Items="categories" />
         </FluentStack>
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Center" HorizontalGap="15">
@@ -45,6 +47,8 @@
     private string selectedCategory = string.Empty;
 
     private int correctCount = 0;
+    private List<string> correctWords = new();
+    private List<string> skippedWords = new();
     private TimeSpan remainingTime; 
     private string timerDisplay = ""; // String to display on the countdown button
     private CancellationTokenSource cancellationTokenSource = new(); // To manage the countdown task
@@ -106,11 +110,30 @@
     private void OnCorrect()
     {
         correctCount++;
+        correctWords.Add(currentWord);
         GetNextWord();
     }
 
-    private void OnSkip() => GetNextWord();
+    private void OnSkip()
+    {
+        skippedWords.Add(currentWord);
+        GetNextWord();
+    }
 
+    //[Inject] private NavigationManager NavigationManager { get; set; }
+
+    private Task GoToResultsPage()
+    {
+        // Pass correct/skipped words via a service or serialize them into query strings (advanced).
+        // We'll use a service for simplicity.
+        ResultsService.CorrectWords = correctWords;
+        ResultsService.SkippedWords = skippedWords;
+
+        NavigationManager.NavigateTo("/results");
+        return Task.CompletedTask;
+    }
+
+   
     private void ToggleTimer()
     {
         if (isTimerRunning)
@@ -141,8 +164,9 @@
 
             if (remainingTime.TotalSeconds <= 0)
             {
-                timerDisplay = "00:00"; 
-                StateHasChanged(); 
+                timerDisplay = "00:00";
+                await InvokeAsync(StateHasChanged);
+                await GoToResultsPage(); // Navigate to results
             }
 
             StopCountdown();

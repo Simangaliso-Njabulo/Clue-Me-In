@@ -14,5 +14,7 @@ builder.Services.AddFluentUIComponents();
 
 // Register the WordsService 
 builder.Services.AddScoped<WordsService>();
+// Register the ResultsService
+builder.Services.AddSingleton<ResultsService>();
 
 await builder.Build().RunAsync();

@@ -1,0 +1,36 @@
+﻿@page "/results"
+@inject ResultsService ResultsService
+@inject NavigationManager NavigationManager
+
+<h3>Game Over!</h3>
+
+<FluentCard>
+    <h4>Correct Words</h4>
+    <ul>
+        @foreach (var word in ResultsService.CorrectWords)
+        {
+            <li>@word</li>
+        }
+    </ul>
+    <br />
+    <h4>Skipped Words</h4>
+    <ul>
+        @foreach (var word in ResultsService.SkippedWords)
+        {
+            <li>@word</li>
+        }
+    </ul>
+    <br />
+    <FluentButton OnClick="RestartGame">Play Again</FluentButton>
+</FluentCard>
+
+
+
+@code {
+    private void RestartGame()
+    {
+        ResultsService.Clear();
+        NavigationManager.NavigateTo("/play");
+    }
+}
+
