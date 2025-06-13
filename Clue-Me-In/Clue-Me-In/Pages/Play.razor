@@ -8,14 +8,20 @@
     <FluentStack HorizontalGap="15" HorizontalAlignment="HorizontalAlignment.Center" VerticalAlignment="VerticalAlignment.Bottom" Width="90%" class="button-stack">
 
         <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Left">
-            <FluentSelect Label="Category" @bind-Value="selectedCategory"
-            @onchange="OnCategoryChanged"
-            Items="categories" />
+            <FluentSelect Label="Category"     
+                @bind-Value="selectedCategory"      
+                @onchange="OnCategoryChanged"     
+                Items="categories"   
+                Disabled="hasGameStarted" />
         </FluentStack>
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Center" HorizontalGap="15">
             <!-- Decrease time by 30 seconds -->
-            <FluentButton IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Subtract())" OnClick="DecreaseTime"></FluentButton>
+            <FluentButton 
+                IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Subtract())" 
+                OnClick="DecreaseTime"
+                Disabled="hasGameStarted">
+            </FluentButton>
 
             <!-- Timer display button -->
             <FluentButton IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Timer())" OnClick="ToggleTimer">
@@ -23,7 +29,11 @@
             </FluentButton>
 
             <!-- Increase time by 30 seconds -->
-            <FluentButton IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Add())" OnClick="IncreaseTime"></FluentButton>
+            <FluentButton 
+                IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Add())"
+                OnClick="IncreaseTime" 
+                Disabled="hasGameStarted">
+            </FluentButton>
         </FluentStack>
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right">
