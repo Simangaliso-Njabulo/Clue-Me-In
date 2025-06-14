@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace ViewModels
 {
-    public class PlayViewModel
+    public class PlayViewModel : IPlayViewModel
     {
         private readonly WordsService _wordsService;
         private readonly ResultsService _resultsService;

@@ -18,6 +18,6 @@ builder.Services.AddScoped<WordsService>();
 // Register the ResultsService
 builder.Services.AddSingleton<ResultsService>();
 // Register the PlayViewModel
-builder.Services.AddScoped<PlayViewModel>();
+builder.Services.AddScoped<IPlayViewModel, PlayViewModel>();
 
 await builder.Build().RunAsync();
