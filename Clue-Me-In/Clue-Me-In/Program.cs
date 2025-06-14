@@ -3,6 +3,7 @@ using Data;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.FluentUI.AspNetCore.Components;
+using ViewModels;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -16,5 +17,7 @@ builder.Services.AddFluentUIComponents();
 builder.Services.AddScoped<WordsService>();
 // Register the ResultsService
 builder.Services.AddSingleton<ResultsService>();
+// Register the PlayViewModel
+builder.Services.AddScoped<PlayViewModel>();
 
 await builder.Build().RunAsync();

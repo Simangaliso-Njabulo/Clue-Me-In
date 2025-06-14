@@ -1,61 +1,58 @@
 ﻿@page "/play"
-@inject WordsService WordsService
-@inject ResultsService ResultsService
-@inject NavigationManager NavigationManager
+@inject PlayViewModel PlayVM
 
 <div class="card-container">
 
     <FluentStack HorizontalGap="15" HorizontalAlignment="HorizontalAlignment.Center" VerticalAlignment="VerticalAlignment.Bottom" Width="90%" class="button-stack">
 
         <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Left">
-            <FluentSelect Label="Category"     
-                @bind-Value="selectedCategory"      
-                @onchange="OnCategoryChanged"     
-                Items="categories"   
-                Disabled="hasGameStarted" />
+            <FluentSelect 
+            Label="Category"
+            @bind-Value="PlayVM.SelectedCategory"
+            @onchange="@(e => PlayVM.OnCategoryChanged(e))"
+            Items="PlayVM.Categories"
+            Disabled="PlayVM.HasGameStarted" />
         </FluentStack>
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Center" HorizontalGap="15">
-            <!-- Decrease time by 30 seconds -->
             <FluentButton 
-                IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Subtract())" 
-                OnClick="DecreaseTime"
-                Disabled="hasGameStarted">
+            IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Subtract())"
+            OnClick="PlayVM.DecreaseTime"
+            Disabled="PlayVM.HasGameStarted">
             </FluentButton>
 
-            <!-- Timer display button -->
-            <FluentButton IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Timer())" OnClick="ToggleTimer">
-                @timerDisplay
+            <FluentButton 
+            IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Timer())"
+            OnClick="PlayVM.ToggleTimer">
+                @PlayVM.TimerDisplay
             </FluentButton>
 
-            <!-- Increase time by 30 seconds -->
             <FluentButton 
-                IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Add())"
-                OnClick="IncreaseTime" 
-                Disabled="hasGameStarted">
+            IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.Add())"
+            OnClick="PlayVM.IncreaseTime"
+            Disabled="PlayVM.HasGameStarted">
             </FluentButton>
         </FluentStack>
 
         <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right">
             <FluentButton 
-                Disabled="!isTimerRunning">
-                Score: @correctWords.Count
+            Disabled="!PlayVM.IsTimerRunning">
+                Score: @PlayVM.CorrectWords.Count
             </FluentButton>
 
             <FluentButton 
-                Disabled="!isTimerRunning"
-                IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.CheckmarkCircle().WithColor(Color.Success))"
-                OnClick="OnCorrect">
+            Disabled="!PlayVM.IsTimerRunning"
+            IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.CheckmarkCircle().WithColor(Color.Success))"
+            OnClick="PlayVM.OnCorrect">
                 Correct
             </FluentButton>
 
             <FluentButton 
-                Disabled="!isTimerRunning"          
-                IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.ArrowCircleRight().WithColor(Color.Error))"
-                OnClick="OnSkip">
+            Disabled="!PlayVM.IsTimerRunning"
+            IconEnd="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size24.ArrowCircleRight().WithColor(Color.Error))"
+            OnClick="PlayVM.OnSkip">
                 Skip
             </FluentButton>
-
         </FluentStack>
 
     </FluentStack>
@@ -63,187 +60,21 @@
     <FluentCard class="card">
         <p class="card-text">
             @(
-                isTimerRunning
-                ? currentWord
-                : !hasGameStarted
-                ? "Press the timer to start the game"
-                : "Press the timer to resume the game"
-                )
+                    PlayVM.IsTimerRunning
+                    ? PlayVM.CurrentWord
+                    : !PlayVM.HasGameStarted
+                    ? "Press the timer to start the game"
+                    : "Press the timer to resume the game"
+                    )
         </p>
     </FluentCard>
 
 </div>
 
 @code {
-
-    private List<string> words = new List<string>();
-    private string currentWord = string.Empty;
-    private List<string> categories = new List<string>();
-    private string selectedCategory = string.Empty;
-    private bool hasGameStarted = false;
-    private List<string> correctWords = new();
-    private List<string> skippedWords = new();
-    private TimeSpan remainingTime; 
-    private string timerDisplay = ""; // String to display on the countdown button
-    private CancellationTokenSource cancellationTokenSource = new(); // To manage the countdown task
-    private readonly TimeSpan maxTime = TimeSpan.FromMinutes(5); 
-    private readonly TimeSpan minTime = TimeSpan.FromSeconds(30); 
-    private bool isTimerRunning = false; 
-
     protected override async Task OnInitializedAsync()
     {
-        categories = await WordsService.GetCategoriesAsync(); 
-        if (categories.Count > 0)
-        {
-            selectedCategory = categories[0];
-            await LoadWordsForSelectedCategory();
-            timerDisplay = "01:00";
-            remainingTime = TimeSpan.FromMinutes(1); 
-        }
-    }
-
-    private async Task LoadWordsForSelectedCategory()
-    {
-        words = await WordsService.GetWordsAsync(selectedCategory);
-        ShuffleWords();
-        GetNextWord(); 
-    }
-
-    private async Task OnCategoryChanged(ChangeEventArgs e)
-    {
-        selectedCategory = e.Value?.ToString() ?? string.Empty;
-        await LoadWordsForSelectedCategory();
-    }
-
-    private void ShuffleWords()
-    {
-        Random rng = new Random();
-        int n = words.Count;
-        while (n > 1)
-        {
-            int k = rng.Next(n--);
-            (words[n], words[k]) = (words[k], words[n]);
-        }
-    }
-
-    private void GetNextWord()
-    {
-        if (words.Count == 0)
-        {
-            currentWord = "No words available. Please choose another category or reload page";
-            StopCountdown();
-            return;
-        }
-
-        int randomIndex = new Random().Next(words.Count);
-        currentWord = words[randomIndex];
-        words.RemoveAt(randomIndex);
-    }
-
-    private void OnCorrect()
-    {
-        correctWords.Add(currentWord);
-        GetNextWord();
-    }
-
-    private void OnSkip()
-    {
-        skippedWords.Add(currentWord);
-        GetNextWord();
-    }
-
-    private Task GoToResultsPage()
-    {
-        ResultsService.CorrectWords = correctWords;
-        ResultsService.SkippedWords = skippedWords;
-
-        NavigationManager.NavigateTo("/results");
-        return Task.CompletedTask;
-    }
-
-    private void ToggleTimer()
-    {
-        if (isTimerRunning)
-        {
-            StopCountdown();
-        }
-        else
-        {
-            StartCountdown();
-        }
-    }
-
-    private void StartCountdown()
-    {
-        if (!hasGameStarted)
-        {
-            hasGameStarted = true;
-        }
-
-        isTimerRunning = true;
-        cancellationTokenSource = new CancellationTokenSource();
-
-        // Run the countdown in a background task
-        Task.Run(async () =>
-        {
-            while (remainingTime.TotalSeconds > 0 && !cancellationTokenSource.Token.IsCancellationRequested)
-            {
-                await Task.Delay(1000);
-                remainingTime = remainingTime.Add(TimeSpan.FromSeconds(-1));
-                timerDisplay = remainingTime.ToString(@"mm\:ss");
-                StateHasChanged();
-            }
-
-            if (remainingTime.TotalSeconds <= 0)
-            {
-                timerDisplay = "00:00";
-                await InvokeAsync(StateHasChanged);
-                await GoToResultsPage();
-            }
-
-            StopCountdown();
-        });
-    }
-
-    private void StopCountdown()
-    {
-        isTimerRunning = false;
-        cancellationTokenSource?.Cancel();
-    }
-
-    private void IncreaseTime()
-    {
-        if (!isTimerRunning)
-        {
-            if (remainingTime + TimeSpan.FromSeconds(30) <= maxTime)
-            {
-                remainingTime = remainingTime.Add(TimeSpan.FromSeconds(30));
-            }
-            else
-            {
-                remainingTime = maxTime;
-            }
-
-            timerDisplay = remainingTime.ToString(@"mm\:ss"); 
-            StateHasChanged();
-        }
-    }
-
-    private void DecreaseTime()
-    {
-        if (!isTimerRunning)
-        {
-            if (remainingTime.TotalSeconds - 30 >= minTime.TotalSeconds)
-            {
-                remainingTime = remainingTime.Add(TimeSpan.FromSeconds(-30));
-            }
-            else
-            {
-                remainingTime = minTime;
-            }
-
-            timerDisplay = remainingTime.ToString(@"mm\:ss"); 
-            StateHasChanged(); 
-        }
+        PlayVM.NotifyUI = StateHasChanged;
+        await PlayVM.InitializeAsync();
     }
 }
