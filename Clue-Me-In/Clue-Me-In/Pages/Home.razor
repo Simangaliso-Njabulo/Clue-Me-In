@@ -2,16 +2,70 @@
 @implements IDialogContentComponent
 
 <FluentDesignTheme @bind-Mode=@Mode
-                   @bind-OfficeColor=@Color
-                   StorageName="theme" />
+                    @bind-OfficeColor=@Color
+                    StorageName="theme" />
 
-<FluentSelect Label="Theme"
-              Items="@(Enum.GetValues<DesignThemeModes>())" 
-              @bind-SelectedOption="@Mode" />
+<FluentStack Orientation="Orientation.Horizontal"
+                HorizontalGap="20"
+                VerticalAlignment="VerticalAlignment.Top"
+             Style="width: 100%; height: 100%; align-items: flex-start;">
 
-<FluentSelect Label="Color"
-              Items="@(new OfficeColor? [] { OfficeColor.Word, OfficeColor.Excel, OfficeColor.PowerPoint, OfficeColor.Access, OfficeColor.GroupMe, OfficeColor.Office})"
-              @bind-SelectedOption="@Color" />
+    <!-- Left: Settings (25%) -->
+    <FluentStack Orientation="Orientation.Vertical"
+                    HorizontalAlignment="HorizontalAlignment.Left"
+                    Style="width: 25%;">
+        <FluentLabel Typo="Typography.H3">Settings</FluentLabel>
+
+        <FluentSelect Label="Theme"
+                        Items="@(Enum.GetValues<DesignThemeModes>())"
+                        @bind-SelectedOption="@Mode" />
+
+        <FluentSelect Label="Color"
+                        Items="@(new OfficeColor? [] { OfficeColor.Word, OfficeColor.Excel, OfficeColor.PowerPoint, OfficeColor.Access, OfficeColor.GroupMe, OfficeColor.Office})"
+                        @bind-SelectedOption="@Color" />
+    </FluentStack>
+
+    <!-- Right: How to Play (75%) -->
+    <FluentCard Style="width: 75%;">
+        <FluentHeader>
+            <h3>How to play</h3>
+        </FluentHeader>
+        <FluentBodyContent>
+
+            <FluentStack Orientation="Orientation.Vertical" HorizontalAlignment="HorizontalAlignment.Left" VerticalGap="10">
+
+                <FluentStack Orientation="Orientation.Vertical" HorizontalGap="10" VerticalAlignment="VerticalAlignment.Center">
+                    <b/>
+                    <h5>Step 1: Select a category.</h5>
+                    <b/>
+                    <img src="images/step1.png" alt="Step1" style="width: 75%; height: 75%;" />
+                </FluentStack>
+
+                <FluentStack Orientation="Orientation.Vertical" HorizontalGap="10" VerticalAlignment="VerticalAlignment.Center">
+                    <h5>Step 2: Use + and - buttons to increase/decrease time.</h5>
+                    <img src="images/step2.png" alt="Step2" style="width: 75%; height: 75%;" />
+                </FluentStack>
+
+                <FluentStack Orientation="Orientation.Vertical" HorizontalGap="10" VerticalAlignment="VerticalAlignment.Center">
+                    <h5>Step 3: Click on the clock to start the game.</h5>
+                    <img src="images/step3.png" alt="Step3" style="width: 75%; height: 75%;" />
+                </FluentStack>
+
+                <FluentStack Orientation="Orientation.Vertical" HorizontalGap="10" VerticalAlignment="VerticalAlignment.Center">
+                    <h5>Step 4: Click correct for every answer you get correct and skip if you want to skip the current word.</h5>
+                    <img src="images/step4.png" alt="Step4" style="width: 75%; height: 75%;" />
+                </FluentStack>
+
+                <FluentStack Orientation="Orientation.Vertical" HorizontalGap="10" VerticalAlignment="VerticalAlignment.Center">
+                    <b/>
+                    <h5>Step 5: Once the timer runs out the game will end and you will be presented with the results screen. Press button to play again.</h5>
+                    <img src="images/step5.png" alt="Step5" style="width: 75%; height: 75%;" />
+                </FluentStack>
+            </FluentStack>
+        </FluentBodyContent>
+    </FluentCard>
+
+</FluentStack>
 
 @code {
     private DesignThemeModes Mode = DesignThemeModes.System;

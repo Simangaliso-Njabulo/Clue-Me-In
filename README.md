@@ -9,7 +9,7 @@ Clue Me In is a fun and interactive web application inspired by the popular Sout
 * Responsive Design: Built with Blazor, the web app is responsive and works seamlessly across desktop and mobile devices.
 
 ## How to Play
-1. Enter your name and choose a category.
+1. Choose a category.
 2. Stand behind the device, facing your friends.
 3. Your friends describe the words displayed on the screen while you try to guess them correctly.
 4. Click "Correct" or "Pass" based on your guess.
