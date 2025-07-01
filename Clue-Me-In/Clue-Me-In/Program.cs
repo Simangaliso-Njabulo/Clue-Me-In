@@ -1,5 +1,6 @@
 using Clue_Me_In;
 using Data;
+using Managers;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.FluentUI.AspNetCore.Components;
@@ -15,8 +16,8 @@ builder.Services.AddFluentUIComponents();
 
 // Register the WordsService 
 builder.Services.AddScoped<WordsService>();
-// Register the ResultsService
-builder.Services.AddSingleton<ResultsService>();
+// Register the GameManager
+builder.Services.AddScoped<IGameManager, GameManager>();
 // Register the PlayViewModel
 builder.Services.AddScoped<IPlayViewModel, PlayViewModel>();
 

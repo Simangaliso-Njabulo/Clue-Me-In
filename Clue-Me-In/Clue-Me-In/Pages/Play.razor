@@ -72,9 +72,21 @@
 </div>
 
 @code {
-    protected override async Task OnInitializedAsync()
-    {
-        PlayVM.NotifyUI = StateHasChanged;
-        await PlayVM.InitializeAsync();
+    @code {
+        protected override async Task OnInitializedAsync()
+        {
+            PlayVM.StateChanged += OnVmStateChanged;
+            await PlayVM.InitializeAsync();
+        }
+
+        private void OnVmStateChanged()
+        {
+            InvokeAsync(StateHasChanged);
+        }
+
+        public void Dispose()
+        {
+            PlayVM.StateChanged -= OnVmStateChanged;
+        }
     }
 }

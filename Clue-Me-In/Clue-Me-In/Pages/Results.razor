@@ -1,5 +1,5 @@
 ﻿@page "/results"
-@inject ResultsService ResultsService
+@inject IGameManager GameManager
 @inject NavigationManager NavigationManager
 
 <FluentStack Orientation="Orientation.Vertical"
@@ -27,7 +27,7 @@
                 <div style="justify-content: center">
                     <h4>✅ Correct Words</h4>
                     <ul style="list-style: none; padding-left: 0;">
-                        @foreach (var word in ResultsService.CorrectWords)
+                        @foreach (var word in GameManager.CorrectWords)
                         {
                             <li style="display: flex; align-items: center; gap: 8px;">
                                 <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size20.CheckmarkCircle().WithColor(Color.Success))" />
@@ -41,7 +41,7 @@
                 <div style="justify-content: center">
                     <h4>❌ Skipped Words</h4>
                     <ul style="list-style: none; padding-left: 0;">
-                        @foreach (var word in ResultsService.SkippedWords)
+                        @foreach (var word in GameManager.SkippedWords)
                         {
                             <li style="display: flex; align-items: center; gap: 8px;">
                                 <FluentIcon Value="@(new Microsoft.FluentUI.AspNetCore.Components.Icons.Regular.Size20.Dismiss().WithColor(Color.Error))" />
@@ -66,7 +66,7 @@
 @code {
     private void RestartGame()
     {
-        ResultsService.Clear();
+        GameManager.ResetGame();
         NavigationManager.NavigateTo("/play");
     }
 }
