@@ -52,7 +52,7 @@ namespace Managers
             }
             else
             {
-                CurrentWord = "No words more words in this category choose another one";
+                CurrentWord = "No words in this category choose another one";
             }
 
             UpdateTimerDisplay();
