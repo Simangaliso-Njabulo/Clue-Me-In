@@ -1,5 +1,6 @@
 ﻿using Data;
 using Microsoft.AspNetCore.Components;
+using System.Numerics;
 
 namespace Managers
 {
@@ -134,8 +135,8 @@ namespace Managers
         {
             if (_words.Count == 0)
             {
-                CurrentWord = "No words available. Please choose another category or reload page";
-                StopTimer();
+                SkippedWords.Add("No words available in last category please choose another category when playing again");
+                EndGame();
                 return;
             }
 
