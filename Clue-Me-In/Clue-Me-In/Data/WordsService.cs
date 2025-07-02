@@ -2,7 +2,7 @@
 
 namespace Data
 {
-    public class WordsService
+    public class WordsService: IWordsService
     {
         private readonly HttpClient _httpClient;
         private Dictionary<string, List<string>> _wordCategories = [];

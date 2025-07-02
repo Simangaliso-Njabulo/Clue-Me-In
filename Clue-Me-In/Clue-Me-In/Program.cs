@@ -15,7 +15,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddFluentUIComponents();
 
 // Register the WordsService 
-builder.Services.AddScoped<WordsService>();
+builder.Services.AddScoped<IWordsService, WordsService>();
 // Register the GameManager
 builder.Services.AddScoped<IGameManager, GameManager>();
 // Register the PlayViewModel

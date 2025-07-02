@@ -6,7 +6,7 @@ namespace Managers
 {
     public class GameManager : IGameManager
     {
-        private readonly WordsService _wordsService;
+        private readonly IWordsService _wordsService;
         private readonly NavigationManager _navigationManager;
 
         private List<string> _categories = new();
@@ -27,7 +27,7 @@ namespace Managers
 
         public event Action? StateChanged;
 
-        public GameManager(WordsService wordsService, NavigationManager navigationManager)
+        public GameManager(IWordsService wordsService, NavigationManager navigationManager)
         {
             _wordsService = wordsService;
             _navigationManager = navigationManager;
