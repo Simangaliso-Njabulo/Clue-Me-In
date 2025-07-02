@@ -1,6 +1,6 @@
 ﻿using Data;
 using Microsoft.AspNetCore.Components;
-using System.Numerics;
+using System.Timers;
 
 namespace Managers
 {
@@ -15,7 +15,7 @@ namespace Managers
         private readonly TimeSpan _minTime = TimeSpan.FromSeconds(30);
         private TimeSpan _remainingTime = TimeSpan.FromMinutes(1);
 
-        private CancellationTokenSource _cts = new();
+        private System.Timers.Timer _timer = new(TimeSpan.FromSeconds(1));
 
         public bool IsTimerRunning { get; private set; } = false;
         public bool HasGameStarted { get; private set; } = false;
@@ -31,6 +31,8 @@ namespace Managers
         {
             _wordsService = wordsService;
             _navigationManager = navigationManager;
+
+            _timer.Elapsed += OnTimerElapsed; 
         }
 
         public async Task<List<string>> GetCategoriesAsync()
@@ -42,8 +44,17 @@ namespace Managers
         public async Task InitializeAsync(string category)
         {
             _words = await _wordsService.GetWordsAsync(category);
-            Shuffle(_words);
-            GetNextWord();
+
+            if (_words.Count() > 0)
+            {
+                Shuffle(_words);
+                GetNextWord();
+            }
+            else
+            {
+                CurrentWord = "No words more words in this category choose another one";
+            }
+
             UpdateTimerDisplay();
             NotifyStateChanged();
         }
@@ -52,33 +63,33 @@ namespace Managers
         {
             if (IsTimerRunning) return;
 
-            HasGameStarted = true;
-            IsTimerRunning = true;
-            _cts = new CancellationTokenSource();
-
-            Task.Run(async () =>
+            if (_words.Count() > 0)
             {
-                while (_remainingTime.TotalSeconds > 0 && !_cts.Token.IsCancellationRequested)
-                {
-                    await Task.Delay(1000);
-                    _remainingTime = _remainingTime.Subtract(TimeSpan.FromSeconds(1));
-                    UpdateTimerDisplay();
-                    NotifyStateChanged();
-                }
+                _timer.Start();
+                IsTimerRunning = true;
+                HasGameStarted = true;
+            }
+            NotifyStateChanged();
+        }
 
-                if (_remainingTime.TotalSeconds <= 0)
-                {
-                    EndGame();
-                }
-
-                StopTimer();
-            });
+        private void OnTimerElapsed(object? sender, ElapsedEventArgs e)
+        {
+            if (_remainingTime.TotalSeconds > 0)
+            {
+                _remainingTime = _remainingTime.Subtract(TimeSpan.FromSeconds(1));
+                UpdateTimerDisplay();
+                NotifyStateChanged();
+            }
+            else
+            {
+                EndGame();
+            }
         }
 
         public void StopTimer()
         {
+            _timer.Stop();
             IsTimerRunning = false;
-            _cts.Cancel();
             NotifyStateChanged();
         }
 
@@ -87,6 +98,7 @@ namespace Managers
             HasGameStarted = false;
             IsTimerRunning = false;
             _remainingTime = TimeSpan.FromMinutes(1);
+            StopTimer();
             CorrectWords.Clear();
             SkippedWords.Clear();
             UpdateTimerDisplay();
@@ -135,8 +147,11 @@ namespace Managers
         {
             if (_words.Count == 0)
             {
-                SkippedWords.Add("No words available in last category please choose another category when playing again");
-                EndGame();
+                if (HasGameStarted)
+                {
+                    SkippedWords.Add("No words available in last category please choose another category when playing again");
+                    EndGame();
+                }
                 return;
             }
 
@@ -168,6 +183,5 @@ namespace Managers
         }
 
         private void NotifyStateChanged() => StateChanged?.Invoke();
-
     }
 }

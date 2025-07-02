@@ -60,12 +60,12 @@
     <FluentCard class="card">
         <p class="card-text">
             @(
-                    PlayVM.IsTimerRunning
+                    PlayVM.IsTimerRunning || PlayVM.CurrentWord == "No words more words in this category choose another one"
                     ? PlayVM.CurrentWord
                     : !PlayVM.HasGameStarted
                     ? "Press the timer to start the game"
                     : "Press the timer to resume the game"
-                    )
+             )
         </p>
     </FluentCard>
 
